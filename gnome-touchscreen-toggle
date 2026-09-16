@@ -1,0 +1,55 @@
+#!/bin/sh
+set -eu
+
+usage() {
+    echo "usage: gnome-touchscreen-toggle {status|enable|disable}" >&2
+    exit 2
+}
+
+[ "$#" -eq 1 ] || usage
+case "$1" in
+    status|enable|disable) ;;
+    *) usage ;;
+esac
+
+touchscreen_found=0
+supported_found=0
+enabled=0
+for device in /sys/class/input/input*; do
+    [ -d "$device" ] || continue
+    if udevadm info --query=property --path="$device" 2>/dev/null |
+            grep -qx 'ID_INPUT_TOUCHSCREEN=1'; then
+        touchscreen_found=1
+        inhibit="$device/inhibited"
+        [ -e "$inhibit" ] || continue
+        supported_found=1
+        case "$1" in
+            status)
+                [ "$(cat "$inhibit")" = 0 ] && enabled=1
+                ;;
+            enable)
+                printf '0' > "$inhibit"
+                ;;
+            disable)
+                printf '1' > "$inhibit"
+                ;;
+        esac
+    fi
+done
+
+[ "$touchscreen_found" -eq 1 ] || {
+    echo "No touchscreen input device was found" >&2
+    exit 1
+}
+[ "$supported_found" -eq 1 ] || {
+    echo "The touchscreen does not support the kernel inhibit interface" >&2
+    exit 1
+}
+
+if [ "$1" = status ]; then
+    if [ "$enabled" -eq 1 ]; then
+        echo enabled
+    else
+        echo disabled
+    fi
+fi

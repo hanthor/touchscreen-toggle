@@ -1,0 +1,7 @@
+{
+  "name": "Touchscreen Toggle",
+  "description": "Adds a touchscreen on/off toggle to GNOME Quick Settings.",
+  "uuid": "touchscreen-toggle@local",
+  "shell-version": ["50"],
+  "version": 1
+}
