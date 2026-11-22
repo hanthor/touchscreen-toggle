@@ -44,3 +44,12 @@ Keep a mouse or keyboard available when testing the disable command.
 cd ~/touchscreen-toggle
 ./uninstall.sh
 ```
+
+## Tests
+
+```sh
+sh tests/test-helper.sh
+```
+
+Runs the helper against a fake sysfs tree and a stub `udevadm`, so it needs no
+touchscreen and changes nothing on the host.
